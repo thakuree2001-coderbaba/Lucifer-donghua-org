@@ -112,3 +112,61 @@
   </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lucifer Donghua</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0d0d11; color: #e1e1e6; font-family: system-ui, sans-serif; }
+    .bg-card { background-color: #15161c; }
+    .badge-sub { background-color: #f59e0b; color: #000; font-weight: 700; }
+    .badge-type { background-color: #0284c7; color: #fff; font-weight: 600; }
+  </style>
+</head>
+<body class="min-h-screen pb-10">
+
+  <header class="sticky top-0 z-50 bg-[#111217] border-b border-gray-800 px-3 py-2.5 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <span class="text-red-600 font-extrabold text-base tracking-wider">LUCIFER</span>
+      <span class="text-xs text-white font-bold bg-red-600/20 px-2 py-0.5 rounded border border-red-600/40">DONGHUA</span>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-3 pt-4">
+    <section class="mb-6">
+      <div class="bg-red-700 text-white font-bold text-sm px-3 py-1.5 rounded-t-md inline-block">Popular Today</div>
+      <div class="border-t-2 border-red-700 pt-3">
+        <div id="popular-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const CATALOG = [
+      { id: 'perfect-world', title: 'Perfect World [Wanmei Shijie]', ep: 'Ep 284 [4K]', img: 'https://cdn.myanimelist.net/images/anime/1376/115509.jpg' },
+      { id: 'against-the-gods', title: 'Against the Gods Season 2', ep: 'Ep 22 [4K]', img: 'https://cdn.myanimelist.net/images/anime/1131/139366.jpg' },
+      { id: 'jade-dynasty', title: 'Jade Dynasty Final Season 4', ep: 'Ep 04 [4K]', img: 'https://cdn.myanimelist.net/images/anime/1932/126290.jpg' },
+      { id: 'renegade-immortal', title: 'Renegade Immortal [Xian Ni]', ep: 'Ep 52 [4K]', img: 'https://cdn.myanimelist.net/images/anime/1090/138407.jpg' },
+      { id: 'swallowed-star', title: 'Swallowed Star Season 4', ep: 'Ep 110 [4K]', img: 'https://cdn.myanimelist.net/images/anime/1665/110537.jpg' },
+      { id: 'soul-land-2', title: 'Soul Land 2', ep: 'Ep 45 [4K]', img: 'https://cdn.myanimelist.net/images/anime/1206/136733.jpg' }
+    ];
+
+    document.getElementById('popular-grid').innerHTML = CATALOG.map(item => `
+      <a href="watch.html?animeId=${item.id}&title=${encodeURIComponent(item.title)}" class="group relative bg-card rounded-md overflow-hidden border border-gray-800 hover:border-red-600 transition block">
+        <div class="relative aspect-[3/4] bg-gray-900">
+          <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover" referrerpolicy="no-referrer" onerror="this.src='https://via.placeholder.com/300x400/15161c/ffffff?text=Donghua'">
+          <span class="absolute top-1 right-1 badge-type text-[9px] px-1 rounded">DONGHUA</span>
+          <span class="absolute bottom-1 right-1 badge-sub text-[9px] px-1 rounded">Sub</span>
+          <span class="absolute bottom-1 left-1 text-[9px] bg-black/80 text-gray-200 px-1 rounded">${item.ep}</span>
+        </div>
+        <div class="p-1.5">
+          <h3 class="text-xs font-semibold line-clamp-2 text-gray-200 group-hover:text-red-500">${item.title}</h3>
+        </div>
+      </a>
+    `).join('');
+  </script>
+</body>
+</html>
