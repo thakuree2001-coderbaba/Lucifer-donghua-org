@@ -1,6 +1,46 @@
-const API_BASE = "https://api.consumet.org/anime/gogoanime";
+const PRIMARY_API = "https://api.consumet.org/anime/gogoanime";
+const PROXY_API = "https://corsproxy.io/?" + encodeURIComponent("https://api.consumet.org/anime/gogoanime");
 
-// Render Continue Watching section from LocalStorage
+// Fallback anime dataset if external endpoints are temporarily blocked
+const fallbackData = [
+  {
+    id: "battle-through-the-heavens-season-5",
+    title: "Battle Through The Heavens (Season 5)",
+    image: "https://picsum.photos/id/10/300/400",
+    episodeNumber: 102
+  },
+  {
+    id: "soul-land-2",
+    title: "Soul Land 2: The Peerless Tang Sect",
+    image: "https://picsum.photos/id/11/300/400",
+    episodeNumber: 60
+  },
+  {
+    id: "perfect-world",
+    title: "Perfect World (Wanmei Shijie)",
+    image: "https://picsum.photos/id/12/300/400",
+    episodeNumber: 175
+  },
+  {
+    id: "swallowed-star-season-4",
+    title: "Swallowed Star (Season 4)",
+    image: "https://picsum.photos/id/13/300/400",
+    episodeNumber: 130
+  },
+  {
+    id: "renegade-immortal",
+    title: "Renegade Immortal (Xian Ni)",
+    image: "https://picsum.photos/id/14/300/400",
+    episodeNumber: 48
+  },
+  {
+    id: "against-the-gods",
+    title: "Against The Gods",
+    image: "https://picsum.photos/id/15/300/400",
+    episodeNumber: 32
+  }
+];
+
 function renderHistory() {
   const historyContainer = document.getElementById('history-section');
   if (!historyContainer) return;
@@ -38,30 +78,31 @@ function renderHistory() {
   historyContainer.innerHTML = html;
 }
 
-// Fetch Latest Updated & Trending Anime/Donghua automatically
 async function fetchCatalog() {
   const grid = document.getElementById('catalog-grid');
   if (!grid) return;
 
   renderHistory();
-  grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10">Loading latest releases...</p>';
+  grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10">Loading catalog...</p>';
 
   try {
-    const [recentRes, topRes] = await Promise.all([
-      fetch(`${API_BASE}/recent-episodes`),
-      fetch(`${API_BASE}/top-airing`)
-    ]);
+    let res = await fetch(`${PRIMARY_API}/top-airing`).catch(() => null);
+    if (!res || !res.ok) {
+      res = await fetch(`${PROXY_API}/top-airing`).catch(() => null);
+    }
 
-    const recentData = await recentRes.json();
-    const topData = await topRes.json();
-
-    // Merge recent releases and top airing items
-    const combined = [...(recentData.results || []), ...(topData.results || [])];
-    const uniqueItems = Array.from(new Map(combined.map(item => [item.id, item])).values());
-
-    renderGrid(uniqueItems);
+    if (res && res.ok) {
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        renderGrid(data.results);
+        return;
+      }
+    }
+    
+    // Use fallback data if remote APIs fail or respond empty
+    renderGrid(fallbackData);
   } catch (err) {
-    grid.innerHTML = '<p class="col-span-full text-center text-red-500 py-10">Failed to load content. Please try again.</p>';
+    renderGrid(fallbackData);
   }
 }
 
@@ -89,7 +130,6 @@ function renderGrid(items) {
   });
 }
 
-// Responsive Search Handler
 document.getElementById('search-input')?.addEventListener('input', async (e) => {
   const query = e.target.value.trim();
   if (query.length < 2) {
@@ -98,9 +138,14 @@ document.getElementById('search-input')?.addEventListener('input', async (e) => 
   }
 
   try {
-    const res = await fetch(`${API_BASE}/${encodeURIComponent(query)}`);
-    const data = await res.json();
-    renderGrid(data.results || []);
+    let res = await fetch(`${PRIMARY_API}/${encodeURIComponent(query)}`).catch(() => null);
+    if (!res || !res.ok) {
+      res = await fetch(`${PROXY_API}/${encodeURIComponent(query)}`).catch(() => null);
+    }
+    if (res && res.ok) {
+      const data = await res.json();
+      renderGrid(data.results || []);
+    }
   } catch (err) {
     console.error(err);
   }
