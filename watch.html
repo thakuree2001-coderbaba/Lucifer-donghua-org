@@ -13,84 +13,113 @@
       <span class="text-sm text-gray-400">Lucifer Donghua Org</span>
     </div>
     
-    <h1 id="anime-title" class="text-2xl font-bold mb-4">Loading...</h1>
+    <h1 id="anime-title" class="text-xl sm:text-2xl font-bold mb-4">Loading Anime Details...</h1>
     
-    <!-- Player Container -->
-    <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden shadow-lg mb-4" id="player-container"></div>
+    <!-- Video Player Window -->
+    <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden shadow-lg mb-4" id="player-container">
+      <div class="flex items-center justify-center h-full text-gray-500">Select an episode to start streaming</div>
+    </div>
     
-    <!-- Player Controls & Download -->
+    <!-- Controls Section -->
     <div class="flex flex-wrap items-center justify-between gap-4 bg-gray-900 p-4 rounded-lg mb-6">
       <div class="flex items-center gap-2">
         <span class="text-xs text-gray-400 uppercase font-semibold">Server:</span>
-        <button onclick="switchServer('Server1')" id="btn-Server1" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Player 1</button>
-        <button onclick="switchServer('Server2')" id="btn-Server2" class="px-3 py-1 bg-gray-800 text-white text-xs rounded hover:bg-red-700">Player 2</button>
-        <button onclick="switchServer('Server3')" id="btn-Server3" class="px-3 py-1 bg-gray-800 text-white text-xs rounded hover:bg-red-700">Player 3</button>
+        <button onclick="switchServer(0)" id="btn-0" class="px-3 py-1 bg-red-600 text-white text-xs rounded">Server 1</button>
+        <button onclick="switchServer(1)" id="btn-1" class="px-3 py-1 bg-gray-800 text-white text-xs rounded">Server 2</button>
+        <button onclick="switchServer(2)" id="btn-2" class="px-3 py-1 bg-gray-800 text-white text-xs rounded">Server 3</button>
       </div>
       
-      <a id="download-btn" href="#" target="_blank" download class="px-4 py-1.5 bg-green-600 text-white text-xs font-semibold rounded hover:bg-green-700 flex items-center gap-1">
+      <a id="download-btn" href="#" target="_blank" class="px-4 py-1.5 bg-green-600 text-white text-xs font-semibold rounded hover:bg-green-700 flex items-center gap-1">
         ⬇ Download Episode
       </a>
     </div>
 
-    <!-- Episode Selector -->
-    <h2 class="text-lg font-semibold mb-2">Select Episode:</h2>
-    <div id="episodes-grid" class="grid grid-cols-4 sm:grid-cols-6 gap-2"></div>
+    <!-- Episode Grid -->
+    <h2 class="text-lg font-semibold mb-2">Episodes:</h2>
+    <div id="episodes-grid" class="grid grid-cols-4 sm:grid-cols-8 gap-2 max-h-60 overflow-y-auto p-1 bg-gray-950 rounded border border-gray-900">
+      <p class="col-span-full text-xs text-gray-500">Loading episodes list...</p>
+    </div>
   </div>
 
-  <script src="app.js"></script>
   <script>
+    const API_BASE = "https://api.consumet.org/anime/gogoanime";
     const params = new URLSearchParams(window.location.search);
-    const animeId = params.get('id') || 0;
-    const currentAnime = mediaList[animeId];
+    const animeId = params.get('animeId');
 
-    let currentEpIndex = 0;
-    let currentServer = 'Server1';
+    let episodeSources = [];
+    let currentServerIndex = 0;
 
-    if (currentAnime) {
-      document.getElementById('anime-title').textContent = currentAnime.title;
-      renderEpisodes();
-      loadPlayer();
+    async function loadAnimeData() {
+      if (!animeId) return;
+      try {
+        const res = await fetch(`${API_BASE}/info/${animeId}`);
+        const data = await res.json();
+        
+        document.getElementById('anime-title').textContent = data.title;
+        renderEpisodes(data.episodes);
+        if (data.episodes.length > 0) {
+          loadEpisodeStream(data.episodes[0].id);
+        }
+      } catch (err) {
+        document.getElementById('anime-title').textContent = "Error loading content";
+      }
     }
 
-    function renderEpisodes() {
+    function renderEpisodes(episodes) {
       const epContainer = document.getElementById('episodes-grid');
       epContainer.innerHTML = '';
-      currentAnime.episodes.forEach((ep, idx) => {
+      
+      episodes.forEach((ep) => {
         const btn = document.createElement('button');
-        btn.className = `p-2 text-xs rounded border text-center ${idx === currentEpIndex ? 'bg-red-600 border-red-600 text-white' : 'bg-gray-900 border-gray-800 hover:border-gray-600'}`;
-        btn.textContent = ep.ep;
-        btn.onclick = () => {
-          currentEpIndex = idx;
-          renderEpisodes();
-          loadPlayer();
-        };
+        btn.className = "p-2 text-xs rounded bg-gray-900 border border-gray-800 hover:border-red-600 text-center";
+        btn.textContent = `Ep ${ep.number}`;
+        btn.onclick = () => loadEpisodeStream(ep.id);
         epContainer.appendChild(btn);
       });
     }
 
-    function switchServer(serverName) {
-      currentServer = serverName;
-      ['Server1', 'Server2', 'Server3'].forEach(s => {
-        const b = document.getElementById(`btn-${s}`);
-        if (b) b.className = s === serverName ? 'px-3 py-1 bg-red-600 text-white text-xs rounded' : 'px-3 py-1 bg-gray-800 text-white text-xs rounded';
-      });
-      loadPlayer();
-    }
-
-    function loadPlayer() {
-      const ep = currentAnime.episodes[currentEpIndex];
-      const streamUrl = ep.players[currentServer];
+    async function loadEpisodeStream(episodeId) {
       const container = document.getElementById('player-container');
-      const dlBtn = document.getElementById('download-btn');
+      container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Fetching streaming servers...</div>';
 
-      dlBtn.href = ep.downloadUrl;
+      try {
+        const res = await fetch(`${API_BASE}/watch/${episodeId}`);
+        const data = await res.json();
+        episodeSources = data.sources || [];
 
-      if (streamUrl.includes('youtube.com') || streamUrl.includes('embed')) {
-        container.innerHTML = `<iframe src="${streamUrl}" class="w-full h-full" allowfullscreen></iframe>`;
-      } else {
-        container.innerHTML = `<video src="${streamUrl}" controls autoplay class="w-full h-full"></video>`;
+        if (episodeSources.length > 0) {
+          playServer(0);
+        } else if (data.headers && data.download) {
+          document.getElementById('download-btn').href = data.download;
+        }
+      } catch (err) {
+        container.innerHTML = '<div class="flex items-center justify-center h-full text-red-500">Failed to load stream link.</div>';
       }
     }
+
+    function switchServer(index) {
+      currentServerIndex = index;
+      [0, 1, 2].forEach(i => {
+        const b = document.getElementById(`btn-${i}`);
+        if(b) b.className = i === index ? 'px-3 py-1 bg-red-600 text-white text-xs rounded' : 'px-3 py-1 bg-gray-800 text-white text-xs rounded';
+      });
+      if (episodeSources[index]) {
+        playServer(index);
+      }
+    }
+
+    function playServer(index) {
+      const container = document.getElementById('player-container');
+      const dlBtn = document.getElementById('download-btn');
+      const source = episodeSources[index] || episodeSources[0];
+
+      if (source) {
+        dlBtn.href = source.url;
+        container.innerHTML = `<iframe src="${source.url}" class="w-full h-full" allowfullscreen frameborder="0"></iframe>`;
+      }
+    }
+
+    loadAnimeData();
   </script>
 </body>
 </html>
