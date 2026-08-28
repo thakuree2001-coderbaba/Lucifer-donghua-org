@@ -1,77 +1,63 @@
 const mediaList = [
   {
     title: "Battle Through The Heavens (Season 5)",
-    episode: "Ep 102",
     poster: "https://picsum.photos/id/10/300/400",
-    streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    episodes: [
+      {
+        ep: "Episode 1",
+        players: {
+          Server1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          Server2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+          Server3: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+        },
+        downloadUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      },
+      {
+        ep: "Episode 2",
+        players: {
+          Server1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+          Server2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+          Server3: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+        },
+        downloadUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+      }
+    ]
   },
   {
     title: "Soul Land 2: The Peerless Tang Sect",
-    episode: "Ep 60",
     poster: "https://picsum.photos/id/11/300/400",
-    streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
-  },
-  {
-    title: "Perfect World (Wanmei Shijie)",
-    episode: "Ep 175",
-    poster: "https://picsum.photos/id/12/300/400",
-    streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-  },
-  {
-    title: "Swallowed Star (Season 4)",
-    episode: "Ep 130",
-    poster: "https://picsum.photos/id/13/300/400",
-    streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
-  },
-  {
-    title: "Renegade Immortal (Xian Ni)",
-    episode: "Ep 48",
-    poster: "https://picsum.photos/id/14/300/400",
-    streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
-  },
-  {
-    title: "Against The Gods",
-    episode: "Ep 32",
-    poster: "https://picsum.photos/id/15/300/400",
-    streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoytouches.mp4"
-  },
-  {
-    title: "Throne of Seal",
-    episode: "Ep 115",
-    poster: "https://picsum.photos/id/16/300/400",
-    streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"
-  },
-  {
-    title: "Stellar Transformation",
-    episode: "Ep 80",
-    poster: "https://picsum.photos/id/17/300/400",
-    streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
-  },
-  {
-    title: "Apotheosis",
-    episode: "Ep 75",
-    poster: "https://picsum.photos/id/18/300/400",
-    streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnTheLakesideRing.mp4"
+    episodes: [
+      {
+        ep: "Episode 1",
+        players: {
+          Server1: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+          Server2: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          Server3: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+        },
+        downloadUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+      }
+    ]
   }
 ];
 
 function renderGrid(items) {
   const grid = document.getElementById('catalog-grid');
+  if(!grid) return;
   grid.innerHTML = '';
-  items.forEach(item => {
+  items.forEach((item, index) => {
     const card = document.createElement('div');
     card.className = "bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-red-600 transition cursor-pointer flex flex-col";
     card.innerHTML = `
       <div class="relative aspect-[3/4] w-full bg-gray-800">
         <img src="${item.poster}" alt="${item.title}" class="w-full h-full object-cover">
-        <span class="absolute bottom-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">${item.episode}</span>
+        <span class="absolute bottom-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">${item.episodes.length} Eps</span>
       </div>
       <div class="p-3 flex-grow flex items-center">
         <h3 class="font-medium text-xs sm:text-sm text-gray-200 line-clamp-2 leading-tight">${item.title}</h3>
       </div>
     `;
     card.addEventListener('click', () => {
-      window.location.href = `watch.html?url=${encodeURIComponent(item.streamUrl)}&title=${encodeURIComponent(item.title)}`;
+      window.location.href = `watch.html?id=${index}`;
     });
     grid.appendChild(card);
   });

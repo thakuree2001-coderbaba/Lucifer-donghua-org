@@ -12,24 +12,83 @@
       <a href="index.html" class="text-red-500 font-medium hover:underline">&larr; Back to Catalog</a>
       <span class="text-sm text-gray-400">Lucifer Donghua Org</span>
     </div>
-    <h1 id="video-title" class="text-xl font-bold mb-4">Loading...</h1>
-    <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden shadow-lg" id="player-container">
+    
+    <h1 id="anime-title" class="text-2xl font-bold mb-4">Loading...</h1>
+    
+    <!-- Player Container -->
+    <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden shadow-lg mb-4" id="player-container"></div>
+    
+    <!-- Player Controls & Download -->
+    <div class="flex flex-wrap items-center justify-between gap-4 bg-gray-900 p-4 rounded-lg mb-6">
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-gray-400 uppercase font-semibold">Server:</span>
+        <button onclick="switchServer('Server1')" id="btn-Server1" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Player 1</button>
+        <button onclick="switchServer('Server2')" id="btn-Server2" class="px-3 py-1 bg-gray-800 text-white text-xs rounded hover:bg-red-700">Player 2</button>
+        <button onclick="switchServer('Server3')" id="btn-Server3" class="px-3 py-1 bg-gray-800 text-white text-xs rounded hover:bg-red-700">Player 3</button>
+      </div>
+      
+      <a id="download-btn" href="#" target="_blank" download class="px-4 py-1.5 bg-green-600 text-white text-xs font-semibold rounded hover:bg-green-700 flex items-center gap-1">
+        ⬇ Download Episode
+      </a>
     </div>
+
+    <!-- Episode Selector -->
+    <h2 class="text-lg font-semibold mb-2">Select Episode:</h2>
+    <div id="episodes-grid" class="grid grid-cols-4 sm:grid-cols-6 gap-2"></div>
   </div>
 
+  <script src="app.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
-    const videoUrl = params.get('url');
-    const title = params.get('title');
+    const animeId = params.get('id') || 0;
+    const currentAnime = mediaList[animeId];
 
-    if (title) document.getElementById('video-title').textContent = title;
+    let currentEpIndex = 0;
+    let currentServer = 'Server1';
 
-    const container = document.getElementById('player-container');
-    if (videoUrl) {
-      if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
-        container.innerHTML = `<iframe src="${videoUrl}" class="w-full h-full" allowfullscreen></iframe>`;
+    if (currentAnime) {
+      document.getElementById('anime-title').textContent = currentAnime.title;
+      renderEpisodes();
+      loadPlayer();
+    }
+
+    function renderEpisodes() {
+      const epContainer = document.getElementById('episodes-grid');
+      epContainer.innerHTML = '';
+      currentAnime.episodes.forEach((ep, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `p-2 text-xs rounded border text-center ${idx === currentEpIndex ? 'bg-red-600 border-red-600 text-white' : 'bg-gray-900 border-gray-800 hover:border-gray-600'}`;
+        btn.textContent = ep.ep;
+        btn.onclick = () => {
+          currentEpIndex = idx;
+          renderEpisodes();
+          loadPlayer();
+        };
+        epContainer.appendChild(btn);
+      });
+    }
+
+    function switchServer(serverName) {
+      currentServer = serverName;
+      ['Server1', 'Server2', 'Server3'].forEach(s => {
+        const b = document.getElementById(`btn-${s}`);
+        if (b) b.className = s === serverName ? 'px-3 py-1 bg-red-600 text-white text-xs rounded' : 'px-3 py-1 bg-gray-800 text-white text-xs rounded';
+      });
+      loadPlayer();
+    }
+
+    function loadPlayer() {
+      const ep = currentAnime.episodes[currentEpIndex];
+      const streamUrl = ep.players[currentServer];
+      const container = document.getElementById('player-container');
+      const dlBtn = document.getElementById('download-btn');
+
+      dlBtn.href = ep.downloadUrl;
+
+      if (streamUrl.includes('youtube.com') || streamUrl.includes('embed')) {
+        container.innerHTML = `<iframe src="${streamUrl}" class="w-full h-full" allowfullscreen></iframe>`;
       } else {
-        container.innerHTML = `<video src="${videoUrl}" controls autoplay class="w-full h-full"></video>`;
+        container.innerHTML = `<video src="${streamUrl}" controls autoplay class="w-full h-full"></video>`;
       }
     }
   </script>
