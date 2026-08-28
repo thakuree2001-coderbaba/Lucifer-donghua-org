@@ -2,55 +2,55 @@ const mediaList = [
   {
     title: "Battle Through The Heavens (Season 5)",
     episode: "Ep 102",
-    poster: "https://images.justwatch.com/poster/305886981/s332/battle-through-the-heavens.jpg",
+    poster: "https://picsum.photos/id/10/300/400",
     streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
   },
   {
     title: "Soul Land 2: The Peerless Tang Sect",
     episode: "Ep 60",
-    poster: "https://m.media-amazon.com/images/M/MV5BN2FlyWRhZTUtYWE0NS00Y2EyLTk4NTctNTFmZWRiYjhkYTUyXkEyXkFqcGc@._V1_.jpg",
+    poster: "https://picsum.photos/id/11/300/400",
     streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
   },
   {
     title: "Perfect World (Wanmei Shijie)",
     episode: "Ep 175",
-    poster: "https://m.media-amazon.com/images/M/MV5BMDRiNTA0YZktM2NhMy00MDM3LTg0OTAtOTczOWJmMDhjMDkxXkEyXkFqcGc@._V1_.jpg",
+    poster: "https://picsum.photos/id/12/300/400",
     streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
   },
   {
     title: "Swallowed Star (Season 4)",
     episode: "Ep 130",
-    poster: "https://m.media-amazon.com/images/M/MV5BZDkyNWIxMGMtNDlhMi00YzMwLWEYNWUtOGNmZWM2ZDIxY2U1XkEyXkFqcGc@._V1_.jpg",
+    poster: "https://picsum.photos/id/13/300/400",
     streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
   },
   {
     title: "Renegade Immortal (Xian Ni)",
     episode: "Ep 48",
-    poster: "https://m.media-amazon.com/images/M/MV5BZDU1NzM4ZDItOTM1MC00NmE4LThjYTUtNDcwOTc4NTlkOTlmXkEyXkFqcGc@._V1_.jpg",
+    poster: "https://picsum.photos/id/14/300/400",
     streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
   },
   {
     title: "Against The Gods",
     episode: "Ep 32",
-    poster: "https://m.media-amazon.com/images/M/MV5BZTFiMjhhNWEtOTIxNi00YWQ1LThjYmItYTAtNDY3NWM3YjVkXkEyXkFqcGc@._V1_.jpg",
+    poster: "https://picsum.photos/id/15/300/400",
     streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoytouches.mp4"
   },
   {
     title: "Throne of Seal",
     episode: "Ep 115",
-    poster: "https://m.media-amazon.com/images/M/MV5BYzA2NzRhYzAtOTg1ZS00MTgwLWI1ZTAtYY1jZDdiNDM5NDk3XkEyXkFqcGc@._V1_.jpg",
+    poster: "https://picsum.photos/id/16/300/400",
     streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4"
   },
   {
     title: "Stellar Transformation",
     episode: "Ep 80",
-    poster: "https://m.media-amazon.com/images/M/MV5BZTljNzk3NDQtMWEzMi00OGQ1LTllMDgtNGE1YzRmNTI2YjJmXkEyXkFqcGc@._V1_.jpg",
+    poster: "https://picsum.photos/id/17/300/400",
     streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
   },
   {
     title: "Apotheosis",
     episode: "Ep 75",
-    poster: "https://m.media-amazon.com/images/M/MV5BNzdmZTVjyjAtZDhlNi00YWUxLTg5YTItZTBlMzgxZTIzZDk1XkEyXkFqcGc@._V1_.jpg",
+    poster: "https://picsum.photos/id/18/300/400",
     streamUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnTheLakesideRing.mp4"
   }
 ];
