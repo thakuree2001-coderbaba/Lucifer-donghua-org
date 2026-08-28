@@ -13,20 +13,34 @@
       <span class="text-sm text-gray-400">Lucifer Donghua Org</span>
     </div>
     
-    <h1 id="anime-title" class="text-xl sm:text-2xl font-bold mb-4">Loading Anime Details...</h1>
+    <h1 id="anime-title" class="text-xl sm:text-2xl font-bold mb-4">Loading Anime...</h1>
     
-    <!-- Video Player Window -->
+    <!-- Player Container -->
     <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden shadow-lg mb-4" id="player-container">
-      <div class="flex items-center justify-center h-full text-gray-500">Select an episode to start streaming</div>
+      <div class="flex items-center justify-center h-full text-gray-500">Select an episode to play</div>
     </div>
     
-    <!-- Controls Section -->
+    <!-- Quality & Player Controls -->
     <div class="flex flex-wrap items-center justify-between gap-4 bg-gray-900 p-4 rounded-lg mb-6">
-      <div class="flex items-center gap-2">
-        <span class="text-xs text-gray-400 uppercase font-semibold">Server:</span>
-        <button onclick="switchServer(0)" id="btn-0" class="px-3 py-1 bg-red-600 text-white text-xs rounded">Server 1</button>
-        <button onclick="switchServer(1)" id="btn-1" class="px-3 py-1 bg-gray-800 text-white text-xs rounded">Server 2</button>
-        <button onclick="switchServer(2)" id="btn-2" class="px-3 py-1 bg-gray-800 text-white text-xs rounded">Server 3</button>
+      <div class="flex items-center gap-3">
+        <!-- Quality Selector -->
+        <div class="flex items-center gap-1">
+          <span class="text-xs text-gray-400 font-semibold uppercase">Quality:</span>
+          <select id="quality-selector" onchange="changeQuality(this.value)" class="bg-gray-800 text-white text-xs px-2 py-1 rounded border border-gray-700 outline-none">
+            <option value="1080p">1080p Full HD</option>
+            <option value="720p">720p HD</option>
+            <option value="4k">4K Ultra HD</option>
+            <option value="360p">360p SD</option>
+          </select>
+        </div>
+
+        <!-- Server Selector -->
+        <div class="flex items-center gap-1">
+          <span class="text-xs text-gray-400 font-semibold uppercase">Server:</span>
+          <button onclick="switchServer(0)" id="btn-0" class="px-2.5 py-1 bg-red-600 text-white text-xs rounded">1</button>
+          <button onclick="switchServer(1)" id="btn-1" class="px-2.5 py-1 bg-gray-800 text-white text-xs rounded">2</button>
+          <button onclick="switchServer(2)" id="btn-2" class="px-2.5 py-1 bg-gray-800 text-white text-xs rounded">3</button>
+        </div>
       </div>
       
       <a id="download-btn" href="#" target="_blank" class="px-4 py-1.5 bg-green-600 text-white text-xs font-semibold rounded hover:bg-green-700 flex items-center gap-1">
@@ -37,7 +51,7 @@
     <!-- Episode Grid -->
     <h2 class="text-lg font-semibold mb-2">Episodes:</h2>
     <div id="episodes-grid" class="grid grid-cols-4 sm:grid-cols-8 gap-2 max-h-60 overflow-y-auto p-1 bg-gray-950 rounded border border-gray-900">
-      <p class="col-span-full text-xs text-gray-500">Loading episodes list...</p>
+      <p class="col-span-full text-xs text-gray-500">Loading episodes...</p>
     </div>
   </div>
 
@@ -45,24 +59,37 @@
     const API_BASE = "https://api.consumet.org/anime/gogoanime";
     const params = new URLSearchParams(window.location.search);
     const animeId = params.get('animeId');
+    const targetEp = params.get('ep');
 
     let episodeSources = [];
-    let currentServerIndex = 0;
+    let currentAnimeData = null;
+    let currentEpNumber = 1;
 
     async function loadAnimeData() {
       if (!animeId) return;
       try {
         const res = await fetch(`${API_BASE}/info/${animeId}`);
-        const data = await res.json();
+        currentAnimeData = await res.json();
         
-        document.getElementById('anime-title').textContent = data.title;
-        renderEpisodes(data.episodes);
-        if (data.episodes.length > 0) {
-          loadEpisodeStream(data.episodes[0].id);
+        document.getElementById('anime-title').textContent = currentAnimeData.title;
+        renderEpisodes(currentAnimeData.episodes);
+
+        if (currentAnimeData.episodes.length > 0) {
+          const selectedEp = targetEp ? currentAnimeData.episodes.find(e => e.number == targetEp) : currentAnimeData.episodes[0];
+          const epToLoad = selectedEp || currentAnimeData.episodes[0];
+          loadEpisodeStream(epToLoad.id, epToLoad.number);
         }
       } catch (err) {
-        document.getElementById('anime-title').textContent = "Error loading content";
+        document.getElementById('anime-title').textContent = "Error loading title";
       }
+    }
+
+    function saveToHistory(animeId, title, poster, epNumber) {
+      let history = JSON.parse(localStorage.getItem('animeHistory') || '[]');
+      history = history.filter(item => item.animeId !== animeId);
+      history.unshift({ animeId, title, poster, epNumber, timestamp: Date.now() });
+      if (history.length > 10) history.pop();
+      localStorage.setItem('animeHistory', JSON.stringify(history));
     }
 
     function renderEpisodes(episodes) {
@@ -73,50 +100,52 @@
         const btn = document.createElement('button');
         btn.className = "p-2 text-xs rounded bg-gray-900 border border-gray-800 hover:border-red-600 text-center";
         btn.textContent = `Ep ${ep.number}`;
-        btn.onclick = () => loadEpisodeStream(ep.id);
+        btn.onclick = () => loadEpisodeStream(ep.id, ep.number);
         epContainer.appendChild(btn);
       });
     }
 
-    async function loadEpisodeStream(episodeId) {
+    async function loadEpisodeStream(episodeId, epNum) {
+      currentEpNumber = epNum;
+      if (currentAnimeData) {
+        saveToHistory(animeId, currentAnimeData.title, currentAnimeData.image, epNum);
+      }
+
       const container = document.getElementById('player-container');
-      container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Fetching streaming servers...</div>';
+      container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Loading stream...</div>';
 
       try {
         const res = await fetch(`${API_BASE}/watch/${episodeId}`);
         const data = await res.json();
         episodeSources = data.sources || [];
-
-        if (episodeSources.length > 0) {
-          playServer(0);
-        } else if (data.headers && data.download) {
-          document.getElementById('download-btn').href = data.download;
-        }
+        filterAndPlayQuality(document.getElementById('quality-selector').value);
       } catch (err) {
-        container.innerHTML = '<div class="flex items-center justify-center h-full text-red-500">Failed to load stream link.</div>';
+        container.innerHTML = '<div class="flex items-center justify-center h-full text-red-500">Failed to load player.</div>';
       }
     }
 
-    function switchServer(index) {
-      currentServerIndex = index;
-      [0, 1, 2].forEach(i => {
-        const b = document.getElementById(`btn-${i}`);
-        if(b) b.className = i === index ? 'px-3 py-1 bg-red-600 text-white text-xs rounded' : 'px-3 py-1 bg-gray-800 text-white text-xs rounded';
-      });
-      if (episodeSources[index]) {
-        playServer(index);
-      }
+    function changeQuality(quality) {
+      filterAndPlayQuality(quality);
     }
 
-    function playServer(index) {
+    function filterAndPlayQuality(quality) {
       const container = document.getElementById('player-container');
       const dlBtn = document.getElementById('download-btn');
-      const source = episodeSources[index] || episodeSources[0];
+
+      let source = episodeSources.find(s => s.quality === quality) || episodeSources[0];
 
       if (source) {
         dlBtn.href = source.url;
         container.innerHTML = `<iframe src="${source.url}" class="w-full h-full" allowfullscreen frameborder="0"></iframe>`;
       }
+    }
+
+    function switchServer(index) {
+      [0, 1, 2].forEach(i => {
+        const b = document.getElementById(`btn-${i}`);
+        if(b) b.className = i === index ? 'px-2.5 py-1 bg-red-600 text-white text-xs rounded' : 'px-2.5 py-1 bg-gray-800 text-white text-xs rounded';
+      });
+      filterAndPlayQuality(document.getElementById('quality-selector').value);
     }
 
     loadAnimeData();
