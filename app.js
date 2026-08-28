@@ -1,154 +1,61 @@
-const PRIMARY_API = "https://api.consumet.org/anime/gogoanime";
-const PROXY_API = "https://corsproxy.io/?" + encodeURIComponent("https://api.consumet.org/anime/gogoanime");
+const API_BASE = "https://api.consumet.org/anime/gogoanime";
+const PROXY_BASE = "https://corsproxy.io/?" + encodeURIComponent(API_BASE);
 
-// Fallback anime dataset if external endpoints are temporarily blocked
-const fallbackData = [
-  {
-    id: "battle-through-the-heavens-season-5",
-    title: "Battle Through The Heavens (Season 5)",
-    image: "https://picsum.photos/id/10/300/400",
-    episodeNumber: 102
-  },
-  {
-    id: "soul-land-2",
-    title: "Soul Land 2: The Peerless Tang Sect",
-    image: "https://picsum.photos/id/11/300/400",
-    episodeNumber: 60
-  },
-  {
-    id: "perfect-world",
-    title: "Perfect World (Wanmei Shijie)",
-    image: "https://picsum.photos/id/12/300/400",
-    episodeNumber: 175
-  },
-  {
-    id: "swallowed-star-season-4",
-    title: "Swallowed Star (Season 4)",
-    image: "https://picsum.photos/id/13/300/400",
-    episodeNumber: 130
-  },
-  {
-    id: "renegade-immortal",
-    title: "Renegade Immortal (Xian Ni)",
-    image: "https://picsum.photos/id/14/300/400",
-    episodeNumber: 48
-  },
-  {
-    id: "against-the-gods",
-    title: "Against The Gods",
-    image: "https://picsum.photos/id/15/300/400",
-    episodeNumber: 32
+async function fetchDonghuaData(endpoint) {
+  try {
+    let res = await fetch(`${API_BASE}/${endpoint}`).catch(() => null);
+    if (!res || !res.ok) {
+      res = await fetch(`${PROXY_BASE}/${endpoint}`).catch(() => null);
+    }
+    if (res && res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+    console.error("API fetch error:", e);
   }
-];
+  return null;
+}
 
-function renderHistory() {
-  const historyContainer = document.getElementById('history-section');
-  if (!historyContainer) return;
+function createCard(item) {
+  const animeId = item.id || item.episodeId;
+  const title = item.title || "Donghua Series";
+  const image = item.image || "https://via.placeholder.com/300x400";
+  const epText = item.episodeNumber ? `Ep ${item.episodeNumber}` : "Latest";
 
-  const history = JSON.parse(localStorage.getItem('animeHistory') || '[]');
-  if (history.length === 0) {
-    historyContainer.innerHTML = '';
-    return;
-  }
-
-  let html = `
-    <div class="mb-8">
-      <h2 class="text-base sm:text-lg font-bold text-gray-200 mb-3 flex items-center gap-2">
-        <span>🕒</span> Continue Watching
-      </h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+  return `
+    <a href="watch.html?animeId=${animeId}" class="group relative bg-card rounded-md overflow-hidden border border-gray-800 hover:border-red-600 transition">
+      <div class="relative aspect-[3/4]">
+        <img src="${image}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
+        <span class="absolute top-1 right-1 badge-type text-[9px] px-1 rounded">DONGHUA</span>
+        <span class="absolute bottom-1 right-1 badge-sub text-[9px] px-1 rounded">Sub</span>
+        <span class="absolute bottom-1 left-1 text-[9px] bg-black/80 text-gray-200 px-1 rounded">${epText}</span>
+      </div>
+      <div class="p-1.5">
+        <h3 class="text-xs font-semibold line-clamp-2 text-gray-200 group-hover:text-red-500">${title}</h3>
+      </div>
+    </a>
   `;
-
-  history.forEach(item => {
-    html += `
-      <div onclick="window.location.href='watch.html?animeId=${encodeURIComponent(item.animeId)}&ep=${item.epNumber}'" 
-           class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-red-600 transition cursor-pointer flex flex-col group">
-        <div class="relative aspect-[3/4] w-full bg-gray-800 overflow-hidden">
-          <img src="${item.poster}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
-          <span class="absolute bottom-2 left-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">Ep ${item.epNumber}</span>
-        </div>
-        <div class="p-2 sm:p-3">
-          <h3 class="font-medium text-xs sm:text-sm text-gray-200 line-clamp-1">${item.title}</h3>
-        </div>
-      </div>
-    `;
-  });
-
-  html += `</div></div>`;
-  historyContainer.innerHTML = html;
 }
 
-async function fetchCatalog() {
-  const grid = document.getElementById('catalog-grid');
-  if (!grid) return;
+async function loadDynamicCatalog() {
+  const popularContainer = document.getElementById('popular-grid');
+  const recentContainer = document.getElementById('recent-grid');
 
-  renderHistory();
-  grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10">Loading catalog...</p>';
-
-  try {
-    let res = await fetch(`${PRIMARY_API}/top-airing`).catch(() => null);
-    if (!res || !res.ok) {
-      res = await fetch(`${PROXY_API}/top-airing`).catch(() => null);
+  // Load Popular Donghua
+  if (popularContainer) {
+    const popularData = await fetchDonghuaData("top-airing?page=1");
+    if (popularData && popularData.results && popularData.results.length > 0) {
+      popularContainer.innerHTML = popularData.results.slice(0, 6).map(createCard).join('');
     }
+  }
 
-    if (res && res.ok) {
-      const data = await res.json();
-      if (data.results && data.results.length > 0) {
-        renderGrid(data.results);
-        return;
-      }
+  // Load Recent Releases
+  if (recentContainer) {
+    const recentData = await fetchDonghuaData("recent-episodes?page=1");
+    if (recentData && recentData.results && recentData.results.length > 0) {
+      recentContainer.innerHTML = recentData.results.slice(0, 12).map(createCard).join('');
     }
-    
-    // Use fallback data if remote APIs fail or respond empty
-    renderGrid(fallbackData);
-  } catch (err) {
-    renderGrid(fallbackData);
   }
 }
 
-function renderGrid(items) {
-  const grid = document.getElementById('catalog-grid');
-  if (!grid) return;
-  grid.innerHTML = '';
-
-  items.forEach(item => {
-    const card = document.createElement('div');
-    card.className = "bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-red-600 transition cursor-pointer flex flex-col group shadow-md";
-    card.innerHTML = `
-      <div class="relative aspect-[3/4] w-full bg-gray-800 overflow-hidden">
-        <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
-        ${item.episodeNumber ? `<span class="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">EP ${item.episodeNumber}</span>` : ''}
-      </div>
-      <div class="p-2.5 sm:p-3 flex-grow flex items-center">
-        <h3 class="font-medium text-xs sm:text-sm text-gray-200 line-clamp-2 leading-tight">${item.title}</h3>
-      </div>
-    `;
-    card.addEventListener('click', () => {
-      window.location.href = `watch.html?animeId=${encodeURIComponent(item.id)}`;
-    });
-    grid.appendChild(card);
-  });
-}
-
-document.getElementById('search-input')?.addEventListener('input', async (e) => {
-  const query = e.target.value.trim();
-  if (query.length < 2) {
-    if (query.length === 0) fetchCatalog();
-    return;
-  }
-
-  try {
-    let res = await fetch(`${PRIMARY_API}/${encodeURIComponent(query)}`).catch(() => null);
-    if (!res || !res.ok) {
-      res = await fetch(`${PROXY_API}/${encodeURIComponent(query)}`).catch(() => null);
-    }
-    if (res && res.ok) {
-      const data = await res.json();
-      renderGrid(data.results || []);
-    }
-  } catch (err) {
-    console.error(err);
-  }
-});
-
-fetchCatalog();
+document.addEventListener('DOMContentLoaded', loadDynamicCatalog);
