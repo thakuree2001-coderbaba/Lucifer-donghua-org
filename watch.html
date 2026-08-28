@@ -7,51 +7,56 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-gray-100 min-h-screen">
-  <div class="max-w-4xl mx-auto p-4">
-    <div class="flex justify-between items-center mb-6">
-      <a href="index.html" class="text-red-500 font-medium hover:underline">&larr; Back to Catalog</a>
-      <span class="text-sm text-gray-400">Lucifer Donghua Org</span>
+  <div class="max-w-6xl mx-auto px-4 py-4 sm:py-6">
+    <!-- Header Navigation -->
+    <div class="flex justify-between items-center mb-4 sm:mb-6">
+      <a href="index.html" class="text-red-500 text-xs sm:text-sm font-medium hover:underline flex items-center gap-1">&larr; Back to Catalog</a>
+      <span class="text-xs sm:text-sm text-gray-400 font-semibold">Lucifer Donghua</span>
     </div>
-    
-    <h1 id="anime-title" class="text-xl sm:text-2xl font-bold mb-4">Loading Anime...</h1>
-    
-    <!-- Player Container -->
-    <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden shadow-lg mb-4" id="player-container">
-      <div class="flex items-center justify-center h-full text-gray-500">Select an episode to play</div>
+
+    <!-- Title -->
+    <h1 id="anime-title" class="text-base sm:text-2xl font-bold mb-3 sm:mb-4 text-gray-100 line-clamp-2">Loading Stream...</h1>
+
+    <!-- Responsive Player Container (16:9 Ratio) -->
+    <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl mb-4 border border-gray-800" id="player-container">
+      <div class="flex items-center justify-center h-full text-xs sm:text-sm text-gray-500">Select an episode to load stream</div>
     </div>
-    
-    <!-- Quality & Player Controls -->
-    <div class="flex flex-wrap items-center justify-between gap-4 bg-gray-900 p-4 rounded-lg mb-6">
-      <div class="flex items-center gap-3">
+
+    <!-- Control Bar (Stacked on Mobile, Horizontal on PC) -->
+    <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-gray-900 p-3 sm:p-4 rounded-xl border border-gray-800 mb-6">
+      <div class="flex flex-wrap items-center justify-between md:justify-start gap-3">
         <!-- Quality Selector -->
-        <div class="flex items-center gap-1">
-          <span class="text-xs text-gray-400 font-semibold uppercase">Quality:</span>
-          <select id="quality-selector" onchange="changeQuality(this.value)" class="bg-gray-800 text-white text-xs px-2 py-1 rounded border border-gray-700 outline-none">
-            <option value="1080p">1080p Full HD</option>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] sm:text-xs text-gray-400 font-semibold uppercase">Quality:</span>
+          <select id="quality-selector" onchange="changeQuality(this.value)" class="bg-gray-800 text-white text-xs px-2.5 py-1 rounded-lg border border-gray-700 outline-none focus:border-red-600">
+            <option value="1080p">1080p FHD</option>
             <option value="720p">720p HD</option>
-            <option value="4k">4K Ultra HD</option>
+            <option value="4k">4K Ultra</option>
             <option value="360p">360p SD</option>
           </select>
         </div>
 
-        <!-- Server Selector -->
-        <div class="flex items-center gap-1">
-          <span class="text-xs text-gray-400 font-semibold uppercase">Server:</span>
-          <button onclick="switchServer(0)" id="btn-0" class="px-2.5 py-1 bg-red-600 text-white text-xs rounded">1</button>
-          <button onclick="switchServer(1)" id="btn-1" class="px-2.5 py-1 bg-gray-800 text-white text-xs rounded">2</button>
-          <button onclick="switchServer(2)" id="btn-2" class="px-2.5 py-1 bg-gray-800 text-white text-xs rounded">3</button>
+        <!-- Server Selector Buttons -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-[11px] sm:text-xs text-gray-400 font-semibold uppercase">Server:</span>
+          <button onclick="switchServer(0)" id="btn-0" class="px-2.5 py-1 bg-red-600 text-white text-xs font-medium rounded-md">1</button>
+          <button onclick="switchServer(1)" id="btn-1" class="px-2.5 py-1 bg-gray-800 text-white text-xs font-medium rounded-md hover:bg-gray-700">2</button>
+          <button onclick="switchServer(2)" id="btn-2" class="px-2.5 py-1 bg-gray-800 text-white text-xs font-medium rounded-md hover:bg-gray-700">3</button>
         </div>
       </div>
-      
-      <a id="download-btn" href="#" target="_blank" class="px-4 py-1.5 bg-green-600 text-white text-xs font-semibold rounded hover:bg-green-700 flex items-center gap-1">
-        ⬇ Download Episode
+
+      <!-- Download Button -->
+      <a id="download-btn" href="#" target="_blank" class="w-full md:w-auto text-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 shadow">
+        <span>⬇</span> Download Episode
       </a>
     </div>
 
-    <!-- Episode Grid -->
-    <h2 class="text-lg font-semibold mb-2">Episodes:</h2>
-    <div id="episodes-grid" class="grid grid-cols-4 sm:grid-cols-8 gap-2 max-h-60 overflow-y-auto p-1 bg-gray-950 rounded border border-gray-900">
-      <p class="col-span-full text-xs text-gray-500">Loading episodes...</p>
+    <!-- Episode Selector Section -->
+    <div class="bg-gray-900 p-3 sm:p-4 rounded-xl border border-gray-800">
+      <h2 class="text-sm sm:text-base font-semibold mb-3 text-gray-200">Episodes List:</h2>
+      <div id="episodes-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 max-h-64 overflow-y-auto pr-1">
+        <p class="col-span-full text-xs text-gray-500">Loading available episodes...</p>
+      </div>
     </div>
   </div>
 
@@ -63,7 +68,6 @@
 
     let episodeSources = [];
     let currentAnimeData = null;
-    let currentEpNumber = 1;
 
     async function loadAnimeData() {
       if (!animeId) return;
@@ -74,13 +78,13 @@
         document.getElementById('anime-title').textContent = currentAnimeData.title;
         renderEpisodes(currentAnimeData.episodes);
 
-        if (currentAnimeData.episodes.length > 0) {
+        if (currentAnimeData.episodes && currentAnimeData.episodes.length > 0) {
           const selectedEp = targetEp ? currentAnimeData.episodes.find(e => e.number == targetEp) : currentAnimeData.episodes[0];
           const epToLoad = selectedEp || currentAnimeData.episodes[0];
           loadEpisodeStream(epToLoad.id, epToLoad.number);
         }
       } catch (err) {
-        document.getElementById('anime-title').textContent = "Error loading title";
+        document.getElementById('anime-title').textContent = "Error loading anime details";
       }
     }
 
@@ -88,7 +92,7 @@
       let history = JSON.parse(localStorage.getItem('animeHistory') || '[]');
       history = history.filter(item => item.animeId !== animeId);
       history.unshift({ animeId, title, poster, epNumber, timestamp: Date.now() });
-      if (history.length > 10) history.pop();
+      if (history.length > 12) history.pop();
       localStorage.setItem('animeHistory', JSON.stringify(history));
     }
 
@@ -98,7 +102,7 @@
       
       episodes.forEach((ep) => {
         const btn = document.createElement('button');
-        btn.className = "p-2 text-xs rounded bg-gray-900 border border-gray-800 hover:border-red-600 text-center";
+        btn.className = "p-2 text-xs rounded-lg bg-gray-800 hover:bg-red-600 border border-gray-700 hover:border-red-600 text-center transition font-medium";
         btn.textContent = `Ep ${ep.number}`;
         btn.onclick = () => loadEpisodeStream(ep.id, ep.number);
         epContainer.appendChild(btn);
@@ -106,13 +110,12 @@
     }
 
     async function loadEpisodeStream(episodeId, epNum) {
-      currentEpNumber = epNum;
       if (currentAnimeData) {
         saveToHistory(animeId, currentAnimeData.title, currentAnimeData.image, epNum);
       }
 
       const container = document.getElementById('player-container');
-      container.innerHTML = '<div class="flex items-center justify-center h-full text-gray-400">Loading stream...</div>';
+      container.innerHTML = '<div class="flex items-center justify-center h-full text-xs sm:text-sm text-gray-400">Loading stream options...</div>';
 
       try {
         const res = await fetch(`${API_BASE}/watch/${episodeId}`);
@@ -120,7 +123,7 @@
         episodeSources = data.sources || [];
         filterAndPlayQuality(document.getElementById('quality-selector').value);
       } catch (err) {
-        container.innerHTML = '<div class="flex items-center justify-center h-full text-red-500">Failed to load player.</div>';
+        container.innerHTML = '<div class="flex items-center justify-center h-full text-xs sm:text-sm text-red-500">Failed to load episode player.</div>';
       }
     }
 
@@ -136,14 +139,14 @@
 
       if (source) {
         dlBtn.href = source.url;
-        container.innerHTML = `<iframe src="${source.url}" class="w-full h-full" allowfullscreen frameborder="0"></iframe>`;
+        container.innerHTML = `<iframe src="${source.url}" class="w-full h-full border-0" allowfullscreen></iframe>`;
       }
     }
 
     function switchServer(index) {
       [0, 1, 2].forEach(i => {
         const b = document.getElementById(`btn-${i}`);
-        if(b) b.className = i === index ? 'px-2.5 py-1 bg-red-600 text-white text-xs rounded' : 'px-2.5 py-1 bg-gray-800 text-white text-xs rounded';
+        if (b) b.className = i === index ? 'px-2.5 py-1 bg-red-600 text-white text-xs font-medium rounded-md' : 'px-2.5 py-1 bg-gray-800 text-white text-xs font-medium rounded-md hover:bg-gray-700';
       });
       filterAndPlayQuality(document.getElementById('quality-selector').value);
     }
